@@ -4,19 +4,23 @@ import { useState } from "react";
 import Markdown from "react-markdown";
 
 export default function NewPost(props) {
-  const [postContent, setPostContent] = useState("");
-
   console.log("NEW POST PROPS");
 
-  const handleClick = async () => {
+  const [topic, setTopic] = useState("");
+  const [keywords, setKeywords] = useState("");
+  const [postContent, setPostContent] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     const response = await fetch(`/api/generatePost`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        topic: "dog ownership",
-        keywords: "first-time dog owner, puppy diet",
+        topic,
+        keywords,
       }),
     });
     const json = await response.json();
@@ -26,11 +30,37 @@ export default function NewPost(props) {
 
   return (
     <div>
-      <h1>this is the new post page</h1>
-      <button className="btn" onClick={handleClick}>
-        Generate
-      </button>
-      <Markdown>{postContent}</Markdown>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>
+            <strong>Generate a blog post on the topic of:</strong>
+          </label>
+          <textarea
+            className="resize-none border border-slate-500 w-full block my-2 px-4 py-2 rounded-sm"
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+          />
+        </div>
+        <div>
+          <label>
+            <strong>Targeting the following keywords:</strong>
+          </label>
+          <textarea
+            className="resize-none border border-slate-500 w-full block my-2 px-4 py-2 rounded-sm"
+            value={keywords}
+            onChange={(e) => setKeywords(e.target.value)}
+          />
+        </div>
+        <button
+          type="submit"
+          className="btn bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4"
+        >
+          GENERATE
+        </button>
+      </form>
+      <div className="mt-4">
+        <Markdown>{postContent}</Markdown>
+      </div>
     </div>
   );
 }
