@@ -48,8 +48,37 @@ export default async function handler(req, res) {
 
     const postContent = response.data.choices[0]?.message?.content || "";
 
+    const seoResponse = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo-1106",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are an SEO friendly blog post generator called BlogStandard. You are designed to ouput JSON. Do not include HTML tags in your output.",
+        },
+        {
+          role: "user",
+          content: `
+            Generate an SEO friendly title and SEO friendly meta description for the following blog post.
+            ${postContent}
+            ---
+            The output json must be in the following format:
+            {
+            "title": "example title",
+            "metaDescription": "example meta description"
+            }
+          `,
+        },
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    const { title, metaDescription } =
+      seoResponse.data.choices[0]?.message?.content || {};
+
     console.log("✅ Post generated successfully.");
-    res.status(200).json({ postContent });
+
+    res.status(200).json({ postContent, title, metaDescription });
   } catch (error) {
     console.error("❌ Error generating post:", error);
 
