@@ -4,9 +4,28 @@ import { faCoins } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "../Logo";
+import { useEffect, useState } from "react";
 
 export const AppLayout = ({ children }) => {
   const { user, error, isLoading } = useUser();
+  const [tokenCount, setTokenCount] = useState(0);
+  const [tokenLoading, setTokenLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setTokenLoading(true);
+      fetch("/api/getUserTokens")
+        .then((response) => response.json())
+        .then((data) => {
+          setTokenCount(data.availableTokens);
+          setTokenLoading(false);
+        })
+        .catch((err) => {
+          console.error("Error fetching tokens:", err);
+          setTokenLoading(false);
+        });
+    }
+  }, [user]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -30,7 +49,9 @@ export const AppLayout = ({ children }) => {
             className="block mt-2 text-center px-4 pb-4"
           >
             <FontAwesomeIcon icon={faCoins} className="text-yellow-500" />
-            <span className="pl-1">0 tokens available</span>
+            <span className="pl-1">
+              {tokenLoading ? "Loading..." : `${tokenCount} tokens available`}
+            </span>
           </Link>
         </div>
         <div className="flex-1 overflow-auto bg-gradient-to-b from-slate-800 to-cyan-8">
