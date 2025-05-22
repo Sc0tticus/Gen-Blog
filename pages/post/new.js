@@ -1,12 +1,13 @@
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import { AppLayout } from "../../components/AppLayout/AppLayout";
 import { useState } from "react";
-import Markdown from "react-markdown";
+import { useRouter } from "next/router";
 
 export default function NewPost(props) {
+  const router = useRouter();
+
   const [topic, setTopic] = useState("");
   const [keywords, setKeywords] = useState("");
-  const [postContent, setPostContent] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
 
@@ -19,29 +20,20 @@ export default function NewPost(props) {
       const response = await fetch(`/api/generatePost`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "content-type": "application/json",
         },
-        body: JSON.stringify({
-          topic,
-          keywords,
-        }),
+        body: JSON.stringify({ topic, keywords }),
       });
 
       const json = await response.json();
       console.log("RESULT", json);
 
-      if (!response.ok) {
-        setError(json.error || "Failed to generate post");
-        setPostContent("");
-      } else {
-        setPostContent(json.postContent);
+      if (json?.postId) {
+        router.push(`/post/${json.postId}`);
       }
-    } catch (err) {
-      console.error("Error generating post:", err);
-      setError(
-        "An error occurred while generating the post. Please try again."
-      );
-      setPostContent("");
+    } catch (error) {
+      console.error("Error generating post:", error);
+      setError("Failed to generate post. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -84,9 +76,6 @@ export default function NewPost(props) {
           {isGenerating ? "GENERATING..." : "GENERATE"}
         </button>
       </form>
-      <div className="mt-4">
-        <Markdown>{postContent}</Markdown>
-      </div>
     </div>
   );
 }

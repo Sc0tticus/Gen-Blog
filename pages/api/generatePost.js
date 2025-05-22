@@ -23,12 +23,10 @@ export default withApiAuthRequired(async function handler(req, res) {
 
   if (!userProfile?.availableTokens) {
     console.log("❌ User has no available tokens");
-    return res
-      .status(403)
-      .json({
-        error:
-          "You have no available tokens. Please purchase more tokens to generate posts.",
-      });
+    return res.status(403).json({
+      error:
+        "You have no available tokens. Please purchase more tokens to generate posts.",
+    });
   }
 
   const config = new Configuration({
@@ -119,9 +117,9 @@ export default withApiAuthRequired(async function handler(req, res) {
       created: new Date(),
     });
 
-    console.log("✅ Post generated successfully.");
+    console.log("✅ Post generated successfully.", post);
 
-    res.status(200).json({ postContent, title, metaDescription });
+    res.status(200).json({ postId: post.insertedId });
   } catch (error) {
     console.error("❌ Error generating post:", error);
 
