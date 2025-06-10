@@ -93,8 +93,10 @@ export default withApiAuthRequired(async function handler(req, res) {
       response_format: { type: "json_object" },
     });
 
-    const { title, metaDescription } =
-      seoResponse.data.choices[0]?.message?.content || {};
+    const seoData = JSON.parse(
+      seoResponse.data.choices[0]?.message?.content || "{}"
+    );
+    const { title, metaDescription } = seoData;
 
     await db.collection("users").updateOne(
       {

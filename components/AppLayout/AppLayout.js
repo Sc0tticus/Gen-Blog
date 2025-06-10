@@ -6,7 +6,10 @@ import Link from "next/link";
 import { Logo } from "../Logo";
 import { useEffect, useState } from "react";
 
-export const AppLayout = ({ children }) => {
+export const AppLayout = ({ children, posts, postId }) => {
+  console.log("postId", postId);
+  console.log("posts", posts);
+
   const { user, error, isLoading } = useUser();
   const [tokenCount, setTokenCount] = useState(0);
   const [tokenLoading, setTokenLoading] = useState(false);
@@ -37,11 +40,7 @@ export const AppLayout = ({ children }) => {
       <div className="flex flex-col text-white overflow-hidden">
         <div className="bg-slate-800">
           <Logo />
-          <Link
-            href="/post/new"
-            className="btn"
-            // className="bg-green-500 tracking-wider w-full text-center text-white font-bold cursor-pointer uppercase px-4 py-2 rounded-md hover:bg-green-600 transition-colors block"
-          >
+          <Link href="/post/new" className="btn">
             New post
           </Link>
           <Link
@@ -54,8 +53,19 @@ export const AppLayout = ({ children }) => {
             </span>
           </Link>
         </div>
-        <div className="flex-1 overflow-auto bg-gradient-to-b from-slate-800 to-cyan-8">
-          list of posts
+        <div className="px-4 flex-1 overflow-auto bg-slate-800">
+          {posts &&
+            posts.map((post) => (
+              <Link
+                key={post._id}
+                href={`/post/${post._id}`}
+                className={`py-1 border border-white/0 block text-ellipsis overflow-hidden whitespace-nowrap my-1 px-2 bg-white/10 cursor-pointer rounded-sm ${
+                  postId === post._id ? "bg-white/20 border-white" : ""
+                }`}
+              >
+                {post.topic}
+              </Link>
+            ))}
         </div>
         <div className="bg-cyan-800 flex items-center gap-2 border-t border-t-black/50 h-20 px-2">
           {!!user ? (
@@ -87,7 +97,7 @@ export const AppLayout = ({ children }) => {
           )}
         </div>
       </div>
-      <div>{children}</div>
+      {children}
     </div>
   );
 };
